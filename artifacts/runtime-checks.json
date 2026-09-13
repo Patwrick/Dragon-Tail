@@ -1,0 +1,14 @@
+{
+    "passed": true,
+    "play": true,
+    "pause": true,
+    "speed": true,
+    "replay": true,
+    "reset": true,
+    "renderLifecycle": true,
+    "relayLinks": true,
+    "shieldEffects": true,
+    "rewindVisuals": true,
+    "runtimeErrors": 0,
+    "screenshots": 12
+}

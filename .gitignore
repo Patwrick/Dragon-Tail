@@ -1,0 +1,15 @@
+.DS_Store
+DragonTailUnity/[Ll]ibrary/
+DragonTailUnity/[Tt]emp/
+DragonTailUnity/[Oo]bj/
+DragonTailUnity/[Ll]ogs/
+DragonTailUnity/[Uu]ser[Ss]ettings/
+DragonTailUnity/[Mm]emoryCaptures/
+DragonTailUnity/.vs/
+DragonTailUnity/*.csproj
+DragonTailUnity/*.sln
+DragonTailUnity/*.slnx
+Builds/
+artifacts/*.log
+artifacts/screenshots/
+

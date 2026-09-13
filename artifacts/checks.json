@@ -1,0 +1,135 @@
+{
+    "generatedUtc": "2026-09-13T04:15:01.4671640Z",
+    "unityVersion": "6000.3.24f1",
+    "scope": "Deterministic fictional animation timeline and Unity project configuration",
+    "passed": true,
+    "passedChecks": 25,
+    "totalChecks": 25,
+    "checks": [
+        {
+            "name": "scene_and_player_configuration",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "story_duration",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "initial_formation_and_objectives",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "three_detach_events",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "full_tail_at_26_seconds",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "primary_wave_objective_transitions",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "first_wave_aftermath_at_38_seconds",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "staggered_follow_up_release",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "follow_up_objective_transitions",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "completed_story",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "follow_up_repeats_exact_cached_primary_hits",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "all_three_objectives_hit_before_repeats",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "time_clamping",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "reverse_seeking_has_no_state_leak",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "sample_results_are_independent",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "finite_positions_and_consistent_counts",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "continuous_motion_at_role_transitions",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "six_ordered_narrative_phases",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "one_use_drone_impact_lifecycle",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "expanded_map_and_authored_scene_coordinates",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "relay_height_and_protection_lifetime",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "elevated_relays_circle_while_holding_link",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "deterministic_explosion_cue_windows",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "large_readable_mac_window_configuration",
+            "passed": true,
+            "detail": "Passed"
+        },
+        {
+            "name": "rewind_restores_all_eight_drones",
+            "passed": true,
+            "detail": "Passed"
+        }
+    ]
+}
