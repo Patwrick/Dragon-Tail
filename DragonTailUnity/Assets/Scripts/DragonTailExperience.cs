@@ -14,8 +14,8 @@ namespace DragonTail
         public float Playhead { get; private set; }
         public float Speed { get; private set; } = 1f;
         public bool Playing { get; private set; }
-        public bool ShowLinks { get; set; } = true;
-        public bool ShowRanges { get; set; } = true;
+        public bool ShowLinks { get { return showLinks; } set { if (!videoCaptureActive) showLinks = value; } }
+        public bool ShowRanges { get { return showRanges; } set { if (!videoCaptureActive) showRanges = value; } }
         public float ViewZoom { get; private set; } = 1f;
         Vector3 viewFocus = new Vector3(0, 3, 0);
         static readonly Vector3 CameraOffset = new Vector3(-15, 76, -119);
@@ -40,6 +40,10 @@ namespace DragonTail
         Font labelFont;
         GUIStyle labelStyle;
         int runtimeErrors;
+        bool showLinks = true, showRanges = true, videoCaptureActive;
+        string videoManifestPath;
+        const int VideoFps = 30;
+        const float VideoSpeed = 2f, VideoOpeningHold = 1f, VideoFinalHold = 2f;
 
         void Awake()
         {
@@ -60,7 +64,19 @@ namespace DragonTail
             ApplyFrame();
             string[] args = Environment.GetCommandLineArgs();
             int captureIndex = Array.IndexOf(args, "--capture-dir");
-            if (captureIndex >= 0 && captureIndex + 1 < args.Length)
+            int videoIndex = Array.IndexOf(args, "--video-dir");
+            if (videoIndex >= 0)
+            {
+                videoCaptureActive = true;
+                if (captureIndex >= 0 || videoIndex + 1 >= args.Length || args[videoIndex + 1].StartsWith("-"))
+                {
+                    Debug.LogError("Use --video-dir DIR with an output directory, separately from --capture-dir.");
+                    Application.Quit(1);
+                    return;
+                }
+                StartCoroutine(CaptureVideo(args[videoIndex + 1]));
+            }
+            else if (captureIndex >= 0 && captureIndex + 1 < args.Length)
             {
                 StartCoroutine(CaptureReview(args[captureIndex + 1]));
             }
@@ -71,6 +87,11 @@ namespace DragonTail
             if (Application.isEditor) return;
             string[] args = Environment.GetCommandLineArgs();
             if (Array.IndexOf(args, "-screen-width") >= 0 || Array.IndexOf(args, "-screen-height") >= 0) return;
+            if (Array.IndexOf(args, "--video-dir") >= 0)
+            {
+                Screen.SetResolution(1440, 900, FullScreenMode.Windowed);
+                return;
+            }
             RectInt area = Screen.mainWindowDisplayInfo.workArea;
             float fit = area.width > 0 && area.height > 0
                 ? Mathf.Min(1f, (area.width - 48f) / 1600f, (area.height - 64f) / 1000f) : 1f;
@@ -100,6 +121,8 @@ namespace DragonTail
 
         void Update()
         {
+            // Offline export owns the playhead; render or PNG encoding time must not advance it.
+            if (videoCaptureActive) return;
             if (Playing)
             {
                 Playhead = Mathf.Min(StoryTimeline.Duration, Playhead + Time.unscaledDeltaTime * Speed);
@@ -110,28 +133,31 @@ namespace DragonTail
 
         public void TogglePlayback()
         {
+            if (videoCaptureActive) return;
             if (Playhead >= StoryTimeline.Duration) Playhead = 0;
             Playing = !Playing;
         }
-        public void ResetPlayback() { Playing = false; Playhead = 0; ApplyFrame(); }
-        public void Seek(float seconds) { Playing = false; Playhead = Mathf.Clamp(seconds, 0, StoryTimeline.Duration); ApplyFrame(); }
-        public void SetSpeed(float speed) { Speed = Mathf.Clamp(speed, .25f, 4f); }
+        public void ResetPlayback() { if (videoCaptureActive) return; Playing = false; Playhead = 0; ApplyFrame(); }
+        public void Seek(float seconds) { if (videoCaptureActive) return; Playing = false; Playhead = Mathf.Clamp(seconds, 0, StoryTimeline.Duration); ApplyFrame(); }
+        public void SetSpeed(float speed) { if (videoCaptureActive) return; Speed = Mathf.Clamp(speed, .25f, 4f); }
 
         public void ZoomView(float factor)
         {
+            if (videoCaptureActive) return;
             ViewZoom=Mathf.Clamp(ViewZoom*factor,1f,3.5f);
             if(ViewZoom<=1f)viewFocus=new Vector3(0,3,0);
             ApplyCameraView();
         }
         public void PanView(Vector2 delta)
         {
+            if (videoCaptureActive) return;
             if(ViewZoom<=1f)return;
             Vector3 right=SceneCamera.transform.right;right.y=0;right.Normalize();
             Vector3 forward=Vector3.Cross(right,Vector3.up).normalized;
             viewFocus+=(-right*delta.x+forward*delta.y)*(.16f/ViewZoom);
             viewFocus.x=Mathf.Clamp(viewFocus.x,-53,53);viewFocus.z=Mathf.Clamp(viewFocus.z,-28,28);ApplyCameraView();
         }
-        public void ResetView(){ViewZoom=1;viewFocus=new Vector3(0,3,0);ApplyCameraView();}
+        public void ResetView(){if(videoCaptureActive)return;ViewZoom=1;viewFocus=new Vector3(0,3,0);ApplyCameraView();}
         void ApplyCameraView()
         {
             SceneCamera.transform.position=viewFocus+CameraOffset;SceneCamera.transform.LookAt(viewFocus);SceneCamera.fieldOfView=38f/ViewZoom;
@@ -417,6 +443,19 @@ namespace DragonTail
             public int runtimeErrors, screenshots;
         }
 
+        [Serializable]
+        sealed class VideoReport
+        {
+            public string generatedUtc;
+            public int fps = VideoFps;
+            public float speed = VideoSpeed, storyDuration = StoryTimeline.Duration;
+            public float openingHoldSeconds = VideoOpeningHold, finalHoldSeconds = VideoFinalHold;
+            public float videoDuration;
+            public int frameCount, expectedFrameCount, width, height, runtimeErrors;
+            public bool completed;
+            public string error = "";
+        }
+
         bool RenderedStateMatches()
         {
             int protectedCount=0,visibleCount=0;
@@ -447,6 +486,102 @@ namespace DragonTail
                 if(active&&(Vector3.Distance(links[i].GetPosition(0),expected[i])>.001f||Vector3.Distance(links[i].GetPosition(1),expected[i+1])>.001f)) return false;
             }
             return true;
+        }
+
+        IEnumerator CaptureVideo(string directory)
+        {
+            var result = new VideoReport
+            {
+                generatedUtc = DateTime.UtcNow.ToString("O"),
+                expectedFrameCount = Mathf.RoundToInt((VideoOpeningHold + StoryTimeline.Duration / VideoSpeed + VideoFinalHold) * VideoFps)
+            };
+            // Drive a guarded iterator so filesystem/capture failures also produce a manifest and failure exit.
+            IEnumerator exporter = ExportVideoFrames(directory, result);
+            while (true)
+            {
+                bool more = false;
+                object next = null;
+                try
+                {
+                    more = exporter.MoveNext();
+                    if (more) next = exporter.Current;
+                }
+                catch (Exception exception)
+                {
+                    result.error = exception.Message;
+                    Debug.LogException(exception);
+                }
+                if (!more || result.error.Length > 0) break;
+                yield return next;
+            }
+            (exporter as IDisposable)?.Dispose();
+            Playing = false;
+            result.runtimeErrors = runtimeErrors;
+            result.videoDuration = result.frameCount / (float)VideoFps;
+            result.completed = result.error.Length == 0 && runtimeErrors == 0 && result.frameCount == result.expectedFrameCount;
+            if (!result.completed && result.error.Length == 0) result.error = "Export did not finish without runtime errors.";
+            try
+            {
+                if (videoManifestPath != null) File.WriteAllText(videoManifestPath, JsonUtility.ToJson(result, true));
+            }
+            catch (Exception exception)
+            {
+                result.completed = false;
+                result.error = "Could not write video manifest: " + exception.Message;
+                Debug.LogException(exception);
+                result.runtimeErrors = runtimeErrors;
+            }
+            Debug.Log("DRAGON_TAIL_VIDEO " + JsonUtility.ToJson(result, true));
+            Application.Quit(result.completed ? 0 : 1);
+        }
+
+        IEnumerator ExportVideoFrames(string directory, VideoReport result)
+        {
+            Directory.CreateDirectory(directory);
+            if (Directory.GetFiles(directory, "frame*.png").Length > 0)
+                throw new InvalidOperationException("Video output directory already contains frames; choose an empty directory.");
+            videoManifestPath = Path.Combine(directory, "video-manifest.json");
+            File.WriteAllText(videoManifestPath, JsonUtility.ToJson(result, true));
+            Speed = VideoSpeed;
+            Playhead = 0;
+            Playing = false;
+            ApplyFrame();
+            // Warm the complete app, including IMGUI fonts and the requested window size.
+            yield return null;
+            yield return new WaitForEndOfFrame();
+            result.width = Screen.width;
+            result.height = Screen.height;
+            if (!((result.width == 1440 && result.height == 900) || (result.width == 1920 && result.height == 1200)))
+                throw new InvalidOperationException("Video export requires a 1440x900 or 1920x1200 window; actual size is " + result.width + "x" + result.height + ".");
+            int openingFrames = Mathf.RoundToInt(VideoOpeningHold * VideoFps);
+            int movingFrames = Mathf.RoundToInt(StoryTimeline.Duration / VideoSpeed * VideoFps);
+            for (int index = 0; index < result.expectedFrameCount; index++)
+            {
+                if (runtimeErrors > 0) throw new InvalidOperationException("Runtime errors occurred during video export.");
+                int storyIndex = index - openingFrames;
+                Playing = storyIndex >= 0 && storyIndex < movingFrames;
+                Playhead = Mathf.Clamp(storyIndex * VideoSpeed / VideoFps, 0, StoryTimeline.Duration);
+                ApplyFrame();
+                yield return null;
+                yield return new WaitForEndOfFrame();
+                if (Screen.width != result.width || Screen.height != result.height)
+                    throw new InvalidOperationException("The window was resized during video export.");
+                Texture2D screenshot = null;
+                try
+                {
+                    screenshot = ScreenCapture.CaptureScreenshotAsTexture();
+                    if (screenshot == null || screenshot.width != result.width || screenshot.height != result.height)
+                        throw new InvalidOperationException("Captured frame dimensions do not match the video window.");
+                    File.WriteAllBytes(Path.Combine(directory, "frame" + index.ToString("00000", System.Globalization.CultureInfo.InvariantCulture) + ".png"), screenshot.EncodeToPNG());
+                    result.frameCount++;
+                }
+                finally
+                {
+                    if (screenshot != null) Destroy(screenshot);
+                }
+                if (result.frameCount % VideoFps == 0)
+                    Debug.Log("DRAGON_TAIL_VIDEO_PROGRESS " + result.frameCount + "/" + result.expectedFrameCount);
+            }
         }
 
         IEnumerator CaptureReview(string directory)

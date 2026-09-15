@@ -6,6 +6,14 @@ Dragon Tail proposes assigning a small part of a group to act as relays between 
 
 This repository presents the idea as a **58-second interactive Unity visualization**, with an expanded terrain map, visible message flow, communication-range overlays, and a transition from relay duty to a second pass through the stored sequence.
 
+## Watch the demo
+
+[![Dragon Tail at 2× speed: the group advances, orange links form a relay chain, and the relays complete the stored repeat pass.](docs/media/dragon-tail-demo-2x.gif)](docs/media/dragon-tail-demo-2x.mp4)
+
+**[▶ Watch the full-quality video](docs/media/dragon-tail-demo-2x.mp4)** · 2× speed · 1440 × 900 · 30 fps
+
+The complete 58-second sequence plays in 29 seconds, with a brief opening and closing hold. The preview loops automatically; click it to open the MP4.
+
 ## The idea
 
 The motivation is to reduce reliance on long-range communications equipment on every unit by sharing the communications role across the group. Whether that would improve equipment cost or endurance is an open question; this project does not measure either.

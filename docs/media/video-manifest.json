@@ -1,0 +1,16 @@
+{
+    "generatedUtc": "2026-09-15T00:45:37.0471120Z",
+    "fps": 30,
+    "speed": 2.0,
+    "storyDuration": 58.0,
+    "openingHoldSeconds": 1.0,
+    "finalHoldSeconds": 2.0,
+    "videoDuration": 32.0,
+    "frameCount": 960,
+    "expectedFrameCount": 960,
+    "width": 1440,
+    "height": 900,
+    "runtimeErrors": 0,
+    "completed": true,
+    "error": ""
+}

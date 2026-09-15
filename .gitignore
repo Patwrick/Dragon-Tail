@@ -12,4 +12,5 @@ DragonTailUnity/*.slnx
 Builds/
 artifacts/*.log
 artifacts/screenshots/
-
+artifacts/video-frames/
+artifacts/video-tools/

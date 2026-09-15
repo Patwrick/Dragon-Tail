@@ -1,9 +1,9 @@
 {
-    "generatedUtc": "2026-09-13T04:15:02.5765030Z",
+    "generatedUtc": "2026-09-15T00:45:28.2978170Z",
     "unityVersion": "6000.3.24f1",
     "result": "Succeeded",
     "outputPath": "Builds/Mac/Dragon Tail.app",
     "architecture": "ARM64",
-    "totalBytes": 106629670,
-    "durationSeconds": 1.042956
+    "totalBytes": 106634278,
+    "durationSeconds": 1.2413589999999999
 }
