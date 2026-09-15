@@ -8,11 +8,11 @@ This repository presents the idea as a **58-second interactive Unity visualizati
 
 ## Watch the demo
 
-[![Dragon Tail at 2× speed: the group advances, orange links form a relay chain, and the relays complete the stored repeat pass.](docs/media/dragon-tail-demo-2x.gif)](docs/media/dragon-tail-demo-2x.mp4)
+[![Dragon Tail at 2× speed: the group advances, orange links form a relay chain, and the relays complete the stored repeat pass.](docs/media/dragon-tail-demo-2x.gif)](https://github.com/Patwrick/Dragon-Tail/raw/refs/heads/main/docs/media/dragon-tail-demo-2x.mp4)
 
-**[▶ Watch the full-quality video](docs/media/dragon-tail-demo-2x.mp4)** · 2× speed · 1440 × 900 · 30 fps
+**[↓ Download the full-quality MP4](https://github.com/Patwrick/Dragon-Tail/raw/refs/heads/main/docs/media/dragon-tail-demo-2x.mp4)** · 2× speed · 1440 × 900 · 30 fps
 
-The complete 58-second sequence plays in 29 seconds, with a brief opening and closing hold. The preview loops automatically; click it to open the MP4.
+The complete 58-second sequence plays in 29 seconds, with a brief opening and closing hold. The preview loops automatically. Download the MP4 for full-resolution playback.
 
 ## The idea
 
