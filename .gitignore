@@ -14,3 +14,18 @@ artifacts/*.log
 artifacts/screenshots/
 artifacts/video-frames/
 artifacts/video-tools/
+
+# Local credentials and signing material must stay outside the public repository.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.mobileprovision
+.netrc
+.npmrc
+.pypirc
+secrets/

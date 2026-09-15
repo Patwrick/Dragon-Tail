@@ -14,6 +14,7 @@ namespace DragonTail.EditorTools
     public static class DragonTailBuild
     {
         private const string ScenePath = "Assets/Scenes/DragonTail.unity";
+        private const string MacBuildOutput = "Builds/Mac/Dragon Tail.app";
         private static string ProjectRoot => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         private static string RepositoryRoot => Path.GetFullPath(Path.Combine(Application.dataPath, "../.."));
         private static string ArtifactsPath => Path.Combine(RepositoryRoot, "artifacts");
@@ -81,7 +82,7 @@ namespace DragonTail.EditorTools
         public static void BuildMac()
         {
             Validate();
-            string appPath = Path.Combine(RepositoryRoot, "Builds/Mac/Dragon Tail.app");
+            string appPath = Path.Combine(RepositoryRoot, MacBuildOutput);
             Directory.CreateDirectory(Path.GetDirectoryName(appPath));
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
@@ -97,7 +98,7 @@ namespace DragonTail.EditorTools
                 generatedUtc = DateTime.UtcNow.ToString("O"),
                 unityVersion = Application.unityVersion,
                 result = report.summary.result.ToString(),
-                outputPath = appPath,
+                outputPath = MacBuildOutput,
                 totalBytes = report.summary.totalSize,
                 durationSeconds = report.summary.totalTime.TotalSeconds
             }, true));
